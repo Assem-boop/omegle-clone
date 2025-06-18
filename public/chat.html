@@ -73,26 +73,43 @@
       flex: 1;
       padding: 10px;
       border: none;
-      border-radius: 20px;
+      border-radius: 8px;
       font-size: 1rem;
       background: #1a1a2e;
       color: #fff;
     }
 
     button {
-      background: linear-gradient(90deg, #007bff, #00e0ff);
+      background: #1f8ef1;
       border: none;
       padding: 10px 20px;
-      border-radius: 20px;
+      border-radius: 8px;
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, background 0.3s ease;
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 10px #00e0ff88;
+      background: #3498db;
+    }
+
+    #skipBtn {
+      background: #e74c3c;
+    }
+
+    #skipBtn:hover {
+      background: #c0392b;
+    }
+
+    #reportBtn {
+      background: #f1c40f;
+      color: #000;
+    }
+
+    #reportBtn:hover {
+      background: #d4ac0d;
     }
 
     .system {
