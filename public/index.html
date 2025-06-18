@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Omegle Clone</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #chat-container {
+      width: 420px;
+      height: 600px;
+      background: white;
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #video-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      background: #000;
+    }
+
+    video {
+      width: 180px;
+      height: 135px;
+      background-color: black;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #input-container {
+      display: flex;
+    }
+
+    #messageInput {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    #sendBtn, #skipBtn {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #sendBtn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #skipBtn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .system {
+      font-style: italic;
+      color: gray;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-container">
+
+  <!-- 📹 Video Section -->
+  <div id="video-container">
+    <video id="localVideo" autoplay muted playsinline></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+
+  <!-- 💬 Chat Messages -->
+  <div id="messages"></div>
+
+  <!-- ⌨️ Input + Controls -->
+  <div id="input-container">
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button id="sendBtn">Send</button>
+    <button id="skipBtn">Skip</button>
+  </div>
+
+</div>
+
+<!-- 📦 Socket.IO & Custom JS -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
