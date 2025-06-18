@@ -7,13 +7,12 @@ const input = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const skipBtn = document.getElementById('skipBtn');
 const onlineUsersDiv = document.getElementById('onlineUsers');
+const typingStatus = document.getElementById('typingStatus');
 
 let localStream = null;
 let peerConnection = null;
 const config = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" }
-  ]
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
 
 async function startLocalVideo() {
@@ -32,7 +31,6 @@ async function startLocalVideo() {
 
 function createPeerConnection() {
   peerConnection = new RTCPeerConnection(config);
-
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
   });
@@ -55,16 +53,15 @@ socket.on('connect', () => {
 
 socket.on('system', (msg) => {
   appendMessage("🔔 " + msg, 'system');
-
   if (msg.includes("connected to a stranger")) {
     createPeerConnection();
-    createOffer(); // Caller
+    createOffer();
   }
 });
 
 socket.on('offer', async (offer) => {
   console.log("📨 Received offer");
-  createPeerConnection(); // Callee
+  createPeerConnection();
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
@@ -77,11 +74,10 @@ socket.on('answer', async (answer) => {
 });
 
 socket.on('ice-candidate', async (candidate) => {
-  console.log("📨 Received ICE candidate");
   try {
     await peerConnection.addIceCandidate(candidate);
   } catch (e) {
-    console.error("❌ Failed to add ICE:", e);
+    console.error("❌ ICE error:", e);
   }
 });
 
@@ -101,10 +97,25 @@ sendBtn.addEventListener('click', () => {
   }
 });
 
+// Typing indicator
+let typingTimeout;
+input.addEventListener('input', () => {
+  socket.emit('typing');
+});
+
+socket.on('partner-typing', () => {
+  typingStatus.textContent = 'Stranger is typing...';
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    typingStatus.textContent = '';
+  }, 1500);
+});
+
 // Skip chat
 skipBtn.addEventListener('click', () => {
   socket.emit('skip');
   messagesDiv.innerHTML = '';
+  typingStatus.textContent = '';
   appendMessage('🔄 Searching for a new stranger...', 'system');
   if (peerConnection) {
     peerConnection.close();
@@ -113,17 +124,16 @@ skipBtn.addEventListener('click', () => {
   remoteVideo.srcObject = null;
 });
 
-// Incoming messages
+// Receive message
 socket.on('message', (msg) => {
   appendMessage(`Stranger: ${msg}`);
 });
 
-// Show online user count
+// Show users online
 socket.on('online-count', (count) => {
   onlineUsersDiv.textContent = `Users online: ${count}`;
 });
 
-// Utility
 function appendMessage(msg, className = '') {
   const div = document.createElement('div');
   div.textContent = msg;

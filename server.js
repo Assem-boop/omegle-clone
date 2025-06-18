@@ -16,14 +16,11 @@ const partners = {};
 io.on('connection', (socket) => {
   console.log(`✅ User connected: ${socket.id}`);
 
-  // Emit current online count
   function updateUserCount() {
-    const count = io.engine.clientsCount;
-    io.emit('online-count', count);
+    io.emit('online-count', io.engine.clientsCount);
   }
   updateUserCount();
 
-  // Pairing logic
   if (waitingUser && waitingUser.id !== socket.id) {
     const partnerSocket = waitingUser;
     partners[socket.id] = partnerSocket.id;
@@ -31,14 +28,12 @@ io.on('connection', (socket) => {
 
     socket.emit('system', 'You are now connected to a stranger.');
     partnerSocket.emit('system', 'You are now connected to a stranger.');
-
     waitingUser = null;
   } else {
     waitingUser = socket;
     socket.emit('system', 'Waiting for a stranger to connect...');
   }
 
-  // Text message
   socket.on('message', (msg) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -46,7 +41,13 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Skip logic
+  socket.on('typing', () => {
+    const partnerId = partners[socket.id];
+    if (partnerId) {
+      io.to(partnerId).emit('partner-typing');
+    }
+  });
+
   socket.on('skip', () => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -75,7 +76,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // WebRTC signaling
   socket.on('offer', (offer) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -97,7 +97,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Disconnect
   socket.on('disconnect', () => {
     console.log(`❌ User disconnected: ${socket.id}`);
 
@@ -116,10 +115,10 @@ io.on('connection', (socket) => {
     }
 
     delete partners[socket.id];
-    updateUserCount(); // 👥 Update online user count
+    updateUserCount();
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
