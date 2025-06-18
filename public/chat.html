@@ -1,4 +1,4 @@
-<!-- chat.html - Main Chat Interface -->
+<!-- chat.html - Main Chat Interface with Report Modal -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,6 +117,55 @@
       color: #888;
       margin: 6px 0;
     }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #1a1a2e;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      color: white;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .modal-content select, .modal-content textarea {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #2f2f3f;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+    }
+
+    .modal-content button {
+      margin-top: 1rem;
+      width: 100%;
+      background: #f39c12;
+      color: black;
+      border-radius: 6px;
+    }
+
+    .modal-content button:hover {
+      background: #e67e22;
+    }
   </style>
 </head>
 <body>
@@ -142,7 +191,48 @@
     </div>
   </div>
 
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal">
+    <div class="modal-content">
+      <h3>Report User</h3>
+      <label for="reason">Select a reason:</label>
+      <select id="reason">
+        <option value="abuse">Abusive Language</option>
+        <option value="spam">Spam</option>
+        <option value="inappropriate">Inappropriate Video</option>
+        <option value="other">Other</option>
+      </select>
+      <label for="details">Details (optional):</label>
+      <textarea id="details" rows="3" placeholder="Additional info..."></textarea>
+      <button onclick="submitReport()">Submit Report</button>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
+  <script>
+    const reportModal = document.getElementById('reportModal');
+    const reportBtn = document.getElementById('reportBtn');
+
+    reportBtn.onclick = () => {
+      reportModal.style.display = 'flex';
+    };
+
+    window.onclick = (e) => {
+      if (e.target === reportModal) {
+        reportModal.style.display = 'none';
+      }
+    };
+
+    function submitReport() {
+      const reason = document.getElementById('reason').value;
+      const details = document.getElementById('details').value;
+      console.log('Reported:', { reason, details });
+      // Here you would emit a socket event to the server, e.g.:
+      // socket.emit('report-user', { reason, details });
+      reportModal.style.display = 'none';
+      alert('Thank you for your report.');
+    }
+  </script>
 </body>
 </html>
