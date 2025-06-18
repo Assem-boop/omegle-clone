@@ -1,0 +1,131 @@
+<!-- chat.html - Main Chat Interface -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StrangerLink Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0e0e1b;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar h2 {
+      margin: 0;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .video-section {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      margin-bottom: 1rem;
+    }
+
+    video {
+      background: #111;
+      border-radius: 12px;
+      width: 45%;
+      height: 200px;
+      object-fit: cover;
+      border: 2px solid #2a2a3f;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 20px;
+      font-size: 1rem;
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    button {
+      background: linear-gradient(90deg, #007bff, #00e0ff);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 10px #00e0ff88;
+    }
+
+    .system {
+      font-style: italic;
+      color: #888;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2>StrangerLink</h2>
+    <div id="onlineUsers">Online: ...</div>
+  </div>
+
+  <div class="chat-container">
+    <div class="video-section">
+      <video id="localVideo" autoplay muted playsinline></video>
+      <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+
+    <div id="typingStatus" class="system"></div>
+    <div id="messages" class="messages"></div>
+
+    <div class="input-section">
+      <input type="text" id="messageInput" placeholder="Say something...">
+      <button id="sendBtn">Send</button>
+      <button id="skipBtn">Skip</button>
+      <button id="reportBtn">Report</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
