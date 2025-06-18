@@ -8,19 +8,24 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
-// Track connected users
 let waitingUser = null;
-const partners = {}; // Maps socket.id => partner.socket.id
+const partners = {};
 
 io.on('connection', (socket) => {
   console.log(`✅ User connected: ${socket.id}`);
 
-  // Try to pair the new user
+  // Emit current online count
+  function updateUserCount() {
+    const count = io.engine.clientsCount;
+    io.emit('online-count', count);
+  }
+  updateUserCount();
+
+  // Pairing logic
   if (waitingUser && waitingUser.id !== socket.id) {
     const partnerSocket = waitingUser;
-
     partners[socket.id] = partnerSocket.id;
     partners[partnerSocket.id] = socket.id;
 
@@ -33,7 +38,7 @@ io.on('connection', (socket) => {
     socket.emit('system', 'Waiting for a stranger to connect...');
   }
 
-  // Text chat messaging
+  // Text message
   socket.on('message', (msg) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -41,7 +46,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Skip button
+  // Skip logic
   socket.on('skip', () => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -55,10 +60,8 @@ io.on('connection', (socket) => {
 
     delete partners[socket.id];
 
-    // Reconnect to new stranger
     if (waitingUser && waitingUser.id !== socket.id) {
       const partnerSocket = waitingUser;
-
       partners[socket.id] = partnerSocket.id;
       partners[partnerSocket.id] = socket.id;
 
@@ -72,7 +75,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // WebRTC signaling: offer
+  // WebRTC signaling
   socket.on('offer', (offer) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -80,7 +83,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // WebRTC signaling: answer
   socket.on('answer', (answer) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -88,7 +90,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // WebRTC signaling: ICE candidates
   socket.on('ice-candidate', (candidate) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
@@ -96,7 +97,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle disconnect
+  // Disconnect
   socket.on('disconnect', () => {
     console.log(`❌ User disconnected: ${socket.id}`);
 
@@ -115,9 +116,10 @@ io.on('connection', (socket) => {
     }
 
     delete partners[socket.id];
+    updateUserCount(); // 👥 Update online user count
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

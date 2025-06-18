@@ -6,6 +6,7 @@ const messagesDiv = document.getElementById('messages');
 const input = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const skipBtn = document.getElementById('skipBtn');
+const onlineUsersDiv = document.getElementById('onlineUsers');
 
 let localStream = null;
 let peerConnection = null;
@@ -15,7 +16,6 @@ const config = {
   ]
 };
 
-// STEP 1: Access local camera & mic
 async function startLocalVideo() {
   try {
     localStream = await navigator.mediaDevices.getUserMedia({
@@ -30,29 +30,23 @@ async function startLocalVideo() {
   }
 }
 
-// STEP 2: Create WebRTC Peer Connection
 function createPeerConnection() {
   peerConnection = new RTCPeerConnection(config);
 
-  // Add local stream tracks to connection
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
   });
 
-  // Show remote stream
   peerConnection.ontrack = (event) => {
     remoteVideo.srcObject = event.streams[0];
   };
 
-  // Send ICE candidates to partner
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
       socket.emit("ice-candidate", event.candidate);
     }
   };
 }
-
-// STEP 3: Setup Socket.IO event handlers
 
 socket.on('connect', () => {
   console.log("🔌 Connected to server");
@@ -63,15 +57,14 @@ socket.on('system', (msg) => {
   appendMessage("🔔 " + msg, 'system');
 
   if (msg.includes("connected to a stranger")) {
-    // Ready to connect!
     createPeerConnection();
-    createOffer(); // Act as caller
+    createOffer(); // Caller
   }
 });
 
 socket.on('offer', async (offer) => {
   console.log("📨 Received offer");
-  createPeerConnection(); // Act as callee
+  createPeerConnection(); // Callee
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
@@ -92,14 +85,13 @@ socket.on('ice-candidate', async (candidate) => {
   }
 });
 
-// STEP 4: Emit Offer to Stranger
 async function createOffer() {
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
   socket.emit("offer", offer);
 }
 
-// STEP 5: Chat functionality
+// Send message
 sendBtn.addEventListener('click', () => {
   const msg = input.value.trim();
   if (msg !== '') {
@@ -109,6 +101,7 @@ sendBtn.addEventListener('click', () => {
   }
 });
 
+// Skip chat
 skipBtn.addEventListener('click', () => {
   socket.emit('skip');
   messagesDiv.innerHTML = '';
@@ -120,10 +113,17 @@ skipBtn.addEventListener('click', () => {
   remoteVideo.srcObject = null;
 });
 
+// Incoming messages
 socket.on('message', (msg) => {
   appendMessage(`Stranger: ${msg}`);
 });
 
+// Show online user count
+socket.on('online-count', (count) => {
+  onlineUsersDiv.textContent = `Users online: ${count}`;
+});
+
+// Utility
 function appendMessage(msg, className = '') {
   const div = document.createElement('div');
   div.textContent = msg;

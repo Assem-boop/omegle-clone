@@ -40,6 +40,14 @@
       object-fit: cover;
     }
 
+    #onlineUsers {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      padding: 6px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
     #messages {
       flex: 1;
       padding: 10px;
@@ -86,28 +94,23 @@
 <body>
 
 <div id="chat-container">
-
-  <!-- 📹 Video Section -->
   <div id="video-container">
     <video id="localVideo" autoplay muted playsinline></video>
     <video id="remoteVideo" autoplay playsinline></video>
   </div>
 
-  <!-- 💬 Chat Messages -->
+  <div id="onlineUsers" class="system">Users online: ...</div>
+
   <div id="messages"></div>
 
-  <!-- ⌨️ Input + Controls -->
   <div id="input-container">
     <input type="text" id="messageInput" placeholder="Type a message...">
     <button id="sendBtn">Send</button>
     <button id="skipBtn">Skip</button>
   </div>
-
 </div>
 
-<!-- 📦 Socket.IO & Custom JS -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
-
 </body>
 </html>
