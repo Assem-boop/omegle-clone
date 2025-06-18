@@ -12,8 +12,15 @@ const PORT = process.env.PORT || 8080;
 
 let waitingUser = null;
 const partners = {};
+const banned = new Set();
 
 io.on('connection', (socket) => {
+  if (banned.has(socket.id)) {
+    console.log(`🚫 Blocked user tried to reconnect: ${socket.id}`);
+    socket.disconnect();
+    return;
+  }
+
   console.log(`✅ User connected: ${socket.id}`);
 
   function updateUserCount() {
@@ -45,6 +52,19 @@ io.on('connection', (socket) => {
     const partnerId = partners[socket.id];
     if (partnerId) {
       io.to(partnerId).emit('partner-typing');
+    }
+  });
+
+  socket.on('report', () => {
+    const partnerId = partners[socket.id];
+    if (partnerId) {
+      const partnerSocket = io.sockets.sockets.get(partnerId);
+      if (partnerSocket) {
+        banned.add(partnerId);
+        partnerSocket.emit('system', '🚫 You were reported and disconnected.');
+        partnerSocket.disconnect();
+        console.log(`🚨 Reported and banned: ${partnerId}`);
+      }
     }
   });
 

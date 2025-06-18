@@ -64,6 +64,7 @@
 
     #input-container {
       display: flex;
+      flex-wrap: wrap;
     }
 
     #messageInput {
@@ -74,11 +75,12 @@
       border-top: 1px solid #ccc;
     }
 
-    #sendBtn, #skipBtn {
+    #sendBtn, #skipBtn, #reportBtn {
       padding: 10px;
       font-size: 16px;
       border: none;
       cursor: pointer;
+      margin-top: 4px;
     }
 
     #sendBtn {
@@ -89,6 +91,11 @@
     #skipBtn {
       background-color: #dc3545;
       color: white;
+    }
+
+    #reportBtn {
+      background-color: #ffc107;
+      color: black;
     }
 
     .system {
@@ -114,6 +121,7 @@
     <input type="text" id="messageInput" placeholder="Type a message...">
     <button id="sendBtn">Send</button>
     <button id="skipBtn">Skip</button>
+    <button id="reportBtn">Report</button>
   </div>
 </div>
 

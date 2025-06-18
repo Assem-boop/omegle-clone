@@ -6,6 +6,7 @@ const messagesDiv = document.getElementById('messages');
 const input = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const skipBtn = document.getElementById('skipBtn');
+const reportBtn = document.getElementById('reportBtn');
 const onlineUsersDiv = document.getElementById('onlineUsers');
 const typingStatus = document.getElementById('typingStatus');
 
@@ -60,7 +61,6 @@ socket.on('system', (msg) => {
 });
 
 socket.on('offer', async (offer) => {
-  console.log("📨 Received offer");
   createPeerConnection();
   await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
   const answer = await peerConnection.createAnswer();
@@ -69,7 +69,6 @@ socket.on('offer', async (offer) => {
 });
 
 socket.on('answer', async (answer) => {
-  console.log("📨 Received answer");
   await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
@@ -77,7 +76,7 @@ socket.on('ice-candidate', async (candidate) => {
   try {
     await peerConnection.addIceCandidate(candidate);
   } catch (e) {
-    console.error("❌ ICE error:", e);
+    console.error("ICE error:", e);
   }
 });
 
@@ -87,7 +86,6 @@ async function createOffer() {
   socket.emit("offer", offer);
 }
 
-// Send message
 sendBtn.addEventListener('click', () => {
   const msg = input.value.trim();
   if (msg !== '') {
@@ -97,7 +95,6 @@ sendBtn.addEventListener('click', () => {
   }
 });
 
-// Typing indicator
 let typingTimeout;
 input.addEventListener('input', () => {
   socket.emit('typing');
@@ -111,7 +108,6 @@ socket.on('partner-typing', () => {
   }, 1500);
 });
 
-// Skip chat
 skipBtn.addEventListener('click', () => {
   socket.emit('skip');
   messagesDiv.innerHTML = '';
@@ -124,12 +120,16 @@ skipBtn.addEventListener('click', () => {
   remoteVideo.srcObject = null;
 });
 
-// Receive message
+reportBtn.addEventListener('click', () => {
+  socket.emit('report');
+  appendMessage('🚨 You reported the stranger.', 'system');
+  socket.emit('skip');
+});
+
 socket.on('message', (msg) => {
   appendMessage(`Stranger: ${msg}`);
 });
 
-// Show users online
 socket.on('online-count', (count) => {
   onlineUsersDiv.textContent = `Users online: ${count}`;
 });
